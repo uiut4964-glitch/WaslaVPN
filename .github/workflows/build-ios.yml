@@ -1,0 +1,57 @@
+
+name: Build WaslaVPN iOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve Swift packages
+        run: xcodebuild -resolvePackageDependencies -project WaslaVPN.xcodeproj -scheme WaslaVPN
+
+      - name: Build unsigned iOS app
+        run: |
+          xcodebuild \
+            -project WaslaVPN.xcodeproj \
+            -scheme WaslaVPN \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGN_IDENTITY='' \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA
+        run: |
+          APP_PATH="build/DerivedData/Build/Products/Release-iphoneos/WaslaVPN.app"
+          test -d "$APP_PATH"
+          mkdir -p ipa/Payload
+          cp -R "$APP_PATH" ipa/Payload/
+          cd ipa
+          zip -qr ../WaslaVPN-unsigned.ipa Payload
+          cd ..
+          shasum -a 256 WaslaVPN-unsigned.ipa > WaslaVPN-unsigned.ipa.sha256
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WaslaVPN-iOS-unsigned
+          path: |
+            WaslaVPN-unsigned.ipa
+            WaslaVPN-unsigned.ipa.sha256
