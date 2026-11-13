@@ -1,0 +1,55 @@
+name: WaslaVPN
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+packages:
+  Tun2SocksKit:
+    url: https://github.com/EbrahimTahernejad/Tun2SocksKit.git
+    from: 5.16.0
+
+targets:
+  WaslaVPN:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+    info:
+      path: App/Info.plist
+    dependencies:
+      - target: PacketTunnel
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.waslavpn
+        PRODUCT_NAME: WaslaVPN
+        SWIFT_VERSION: 5.9
+        IPHONEOS_DEPLOYMENT_TARGET: 15.0
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: App/WaslaVPN.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+
+  PacketTunnel:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: PacketTunnel
+    info:
+      path: PacketTunnel/Info.plist
+    dependencies:
+      - package: Tun2SocksKit
+        product: Tun2SocksKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.waslavpn.PacketTunnel
+        PRODUCT_NAME: PacketTunnel
+        SWIFT_VERSION: 5.9
+        IPHONEOS_DEPLOYMENT_TARGET: 15.0
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: PacketTunnel/PacketTunnel.entitlements
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+        GENERATE_INFOPLIST_FILE: NO

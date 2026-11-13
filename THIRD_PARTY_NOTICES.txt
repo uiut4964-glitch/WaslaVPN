@@ -1,0 +1,11 @@
+WaslaVPN prototype includes no vendored third-party binaries.
+
+At build time, Swift Package Manager fetches:
+
+1. Tun2SocksKit — MIT License
+   https://github.com/EbrahimTahernejad/Tun2SocksKit
+
+2. HevSocks5Tunnel — MIT License
+   https://github.com/heiher/hev-socks5-tunnel
+
+Retain and review the upstream LICENSE files when distributing a built application.
